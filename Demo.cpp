@@ -15,8 +15,7 @@ Demo::~Demo() {
 void Demo::Init() {
 	// build and compile our shader program
 	// ------------------------------------
-	shaderProgram = BuildShader("vertexShader.vert", "fragmentShader.frag", nullptr);
-
+	shaderProgram = BuildShader("multipleLight.vert", "multipleLight.frag", nullptr);
 	BuildTvDepan();
 	BuildTvSamping();
 	BuildTvBelakang();
@@ -134,9 +133,64 @@ void Demo::Render() {
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 	// LookAt camera (position, target/direction, up)
+	glm::vec3 cameraPos = glm::vec3(0, 3, 3);
+	glm::vec3 cameraFront = glm::vec3(0, -1, -1);
 	glm::mat4 view = glm::lookAt(glm::vec3(posCamX, posCamY, posCamZ), glm::vec3(viewCamX, viewCamY, viewCamZ), glm::vec3(upCamX, upCamY, upCamZ));
 	GLint viewLoc = glGetUniformLocation(this->shaderProgram, "view");
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+	// set lighting attributes
+	GLint viewPosLoc = glGetUniformLocation(this->shaderProgram, "viewPos");
+	glUniform3f(viewPosLoc, cameraPos.x, cameraPos.y, cameraPos.z);
+
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "dirLight.direction"), 0.0f, -1.0f, -1.0f);
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "dirLight.ambient"), 0.0f, 0.0f, 0.0f);
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "dirLight.diffuse"), 0.5f, 0.5f, 0.5f);
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "dirLight.specular"), 0.5f, 0.5f, 0.5f);
+	// point light 1
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "pointLights[0].position"), 0.0f, 3.0f, 0.0f);
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "pointLights[0].ambient"), 1.0f, 0.0f, 1.0f);
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "pointLights[0].diffuse"), 1.0f, 0.0f, 0.0f);
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "pointLights[0].specular"), 0.4f, 0.0f, 0.0f);
+	glUniform1f(glGetUniformLocation(this->shaderProgram, "pointLights[0].constant"), 1.0f);
+	glUniform1f(glGetUniformLocation(this->shaderProgram, "pointLights[0].linear"), 0.09f);
+	glUniform1f(glGetUniformLocation(this->shaderProgram, "pointLights[0].quadratic"), 0.032f);
+	// point light 2
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "pointLights[1].position"), -2.0f, 3.0f, 0.0f);
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "pointLights[1].ambient"), 0.0f, 1.0f, 0.0f);
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "pointLights[1].diffuse"), 0.0f, 1.0f, 0.0f);
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "pointLights[1].specular"), 0.0f, 1.0f, 0.0f);
+	glUniform1f(glGetUniformLocation(this->shaderProgram, "pointLights[1].constant"), 1.0f);
+	glUniform1f(glGetUniformLocation(this->shaderProgram, "pointLights[1].linear"), 0.09f);
+	glUniform1f(glGetUniformLocation(this->shaderProgram, "pointLights[1].quadratic"), 0.032f);
+	// point light 3
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "pointLights[2].position"), 2.0f, 3.0f, 0.0f);
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "pointLights[2].ambient"), 0.0f, 0.0f, 1.0f);
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "pointLights[2].diffuse"), 0.0f, 0.0f, 1.0f);
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "pointLights[2].specular"), 0.0f, 0.0f, 1.0f);
+	glUniform1f(glGetUniformLocation(this->shaderProgram, "pointLights[2].constant"), 1.0f);
+	glUniform1f(glGetUniformLocation(this->shaderProgram, "pointLights[2].linear"), 0.09f);
+	glUniform1f(glGetUniformLocation(this->shaderProgram, "pointLights[2].quadratic"), 0.032f);
+	// point light 4
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "pointLights[3].position"), 0.0f, 3.0f, 2.0f);
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "pointLights[3].ambient"), 0.0f, 1.0f, 1.0f);
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "pointLights[3].diffuse"), 0.0f, 1.0f, 1.0f);
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "pointLights[3].specular"), 0.0f, 1.0f, 1.0f);
+	glUniform1f(glGetUniformLocation(this->shaderProgram, "pointLights[3].constant"), 1.0f);
+	glUniform1f(glGetUniformLocation(this->shaderProgram, "pointLights[3].linear"), 0.09f);
+	glUniform1f(glGetUniformLocation(this->shaderProgram, "pointLights[3].quadratic"), 0.032f);
+	// spotLight
+	glUniform3fv(glGetUniformLocation(this->shaderProgram, "spotLight.position"), 1, &cameraPos[0]);
+	glUniform3fv(glGetUniformLocation(this->shaderProgram, "spotLight.direction"), 1, &cameraFront[0]);
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "spotLight.ambient"), 1.0f, 1.0f, 1.0f);
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "spotLight.diffuse"), 1.0f, 1.0f, 1.0f);
+	glUniform3f(glGetUniformLocation(this->shaderProgram, "spotLight.specular"), 1.0f, 1.0f, 1.0f);
+	glUniform1f(glGetUniformLocation(this->shaderProgram, "spotLight.constant"), 1.0f);
+	glUniform1f(glGetUniformLocation(this->shaderProgram, "spotLight.linear"), 0.09f);
+	glUniform1f(glGetUniformLocation(this->shaderProgram, "spotLight.quadratic"), 0.032f);
+	glUniform1f(glGetUniformLocation(this->shaderProgram, "spotLight.cutOff"), glm::cos(glm::radians(12.5f)));
+	glUniform1f(glGetUniformLocation(this->shaderProgram, "spotLight.outerCutOff"), glm::cos(glm::radians(15.0f)));
+
 	DrawTvDepan();
 	DrawTvBelakang();
 	DrawTvSamping();
@@ -159,45 +213,53 @@ void Demo::BuildTvDepan() {
 	SOIL_free_image_data(image);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+	glGenTextures(1, &sTexture);
+	glBindTexture(GL_TEXTURE_2D, sTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	image = SOIL_load_image("TvDepan_Specular.png", &width, &height, 0, SOIL_LOAD_RGBA);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+	SOIL_free_image_data(image);
+	glBindTexture(GL_TEXTURE_2D, 0);
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
 	float vertices[] = {
 		// format position, tex coords
 		// front
-		-1.5, -1, 0.5, 0, 0,  // 0
-		1.5, -1, 0.5, 1, 0,   // 1
-		1.5,  1, 0.5, 1, 1,   // 2
-		-1.5,  1, 0.5, 0, 1,  // 3
+		-1.5, -1, 0.5, 0, 0,0.0f,  0.0f,  1.0f, // 0
+		1.5, -1, 0.5, 1, 0,0.0f,  0.0f,  1.0f,   // 1
+		1.5,  1, 0.5, 1, 1, 0.0f,  0.0f,  1.0f,  // 2
+		-1.5,  1, 0.5, 0, 1, 0.0f,  0.0f,  1.0f, // 3
 
 		// right
-		1.5,  1,  0.5, 0, 0,  // 4
-		1.5,  1, -0.5, 1, 0,  // 5
-		1.5, -1, -0.5, 1, 1,  // 6
-		1.5, -1,  0.5, 0, 1,  // 7
+		1.5,  1,  0.5, 0, 0, 1.0f,  0.0f,  0.0f, // 4
+		1.5,  1, -0.5, 1, 0, 1.0f,  0.0f,  0.0f, // 5
+		1.5, -1, -0.5, 1, 1, 1.0f,  0.0f,  0.0f, // 6
+		1.5, -1,  0.5, 0, 1, 1.0f,  0.0f,  0.0f, // 7
 
 		// back
-		1.5, 1, -0.5, 0, 0, // 8 
-		-1.5,  1, -0.5, 1, 0, // 9
-		-1.5,   -1, -0.5, 1, 1, // 10
-		1.5,  -1, -0.5, 0, 1, // 11
+		1.5, 1, -0.5, 0, 0, 0.0f,  0.0f,  -1.0f, // 8 
+		-1.5,  1, -0.5, 1, 0, 0.0f,  0.0f,  -1.0f,// 9
+		-1.5,   -1, -0.5, 1, 1, 0.0f,  0.0f,  -1.0f, // 10
+		1.5,  -1, -0.5, 0, 1, 0.0f,  0.0f,  -1.0f, // 11
 
 		// left
-		-1.5, -1, -0.5, 1, 1, // 12
-		-1.5, -1,  0.5, 0, 1, // 13
-		-1.5,  1,  0.5, 0, 0, // 14
-		-1.5,  1, -0.5, 1, 0, // 15
+		-1.5, -1, -0.5, 1, 1, -1.0f,  0.0f,  0.0f, // 12
+		-1.5, -1,  0.5, 0, 1, -1.0f,  0.0f,  0.0f, // 13
+		-1.5,  1,  0.5, 0, 0, -1.0f,  0.0f,  0.0f,// 14
+		-1.5,  1, -0.5, 1, 0, -1.0f,  0.0f,  0.0f, // 15
 
 		// upper
-		1.5, 1,  0.5, 1, 1,   // 16
-		-1.5, 1,  0.5, 0, 1,  // 17
-		-1.5, 1, -0.5, 0, 0,  // 18
-		1.5, 1, -0.5, 1, 0,   // 19
+		1.5, 1,  0.5, 1, 1, 0.0f,  1.0f,  0.0f,  // 16
+		-1.5, 1,  0.5, 0, 1,  0.0f,  1.0f,  0.0f, // 17
+		-1.5, 1, -0.5, 0, 0,  0.0f,  1.0f,  0.0f, // 18
+		1.5, 1, -0.5, 1, 0,   0.0f,  1.0f,  0.0f, // 19
 
 		// bottom
-		-1.5, -1, -0.5, 1, 1, // 20
-		1.5, -1, -0.5, 0, 1,  // 21
-		1.5, -1,  0.5, 1, 1,  // 22
-		-1.5, -1,  0.5, 0, 1, // 23
+		-1.5, -1, -0.5, 1, 1, 0.0f,  -1.0f,  0.0f, // 20
+		1.5, -1, -0.5, 0, 1,   0.0f,  -1.0f,  0.0f,// 21
+		1.5, -1,  0.5, 1, 1,  0.0f,  -1.0f,  0.0f,// 22
+		-1.5, -1,  0.5, 0, 1, 0.0f,  -1.0f,  0.0f, // 23
 
 	};
 
@@ -224,11 +286,11 @@ void Demo::BuildTvDepan() {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// define position pointer layout 0
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(0 * sizeof(GLfloat)));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(0 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(0);
 
 	// define texcoord pointer layout 1
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
 
 	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
@@ -256,45 +318,54 @@ void Demo::BuildTvSamping() {
 	SOIL_free_image_data(image);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+	glGenTextures(1, &sTexture3);
+	glBindTexture(GL_TEXTURE_2D, sTexture3);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	image = SOIL_load_image("TvSamping_Specular.png", &width, &height, 0, SOIL_LOAD_RGBA);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+	SOIL_free_image_data(image);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
 	float vertices[] = {
 		// format position, tex coords
 		// front
-		-1.5, -1, 0.5, 0, 0,  // 0
-		1.5, -1, 0.5, 1, 0,   // 1
-		1.5,  1, 0.5, 1, 1,   // 2
-		-1.5,  1, 0.5, 0, 1,  // 3
+		-1.5, -1, 0.5, 0, 0,0.0f,  0.0f,  1.0f, // 0
+		1.5, -1, 0.5, 1, 0,0.0f,  0.0f,  1.0f,   // 1
+		1.5,  1, 0.5, 1, 1, 0.0f,  0.0f,  1.0f,  // 2
+		-1.5,  1, 0.5, 0, 1, 0.0f,  0.0f,  1.0f, // 3
 
 		// right
-		1.5,  1,  0.5, 0, 0,  // 4
-		1.5,  1, -0.5, 1, 0,  // 5
-		1.5, -1, -0.5, 1, 1,  // 6
-		1.5, -1,  0.5, 0, 1,  // 7
+		1.5,  1,  0.5, 0, 0, 1.0f,  0.0f,  0.0f, // 4
+		1.5,  1, -0.5, 1, 0, 1.0f,  0.0f,  0.0f, // 5
+		1.5, -1, -0.5, 1, 1, 1.0f,  0.0f,  0.0f, // 6
+		1.5, -1,  0.5, 0, 1, 1.0f,  0.0f,  0.0f, // 7
 
 		// back
-		1.5, 1, -0.5, 0, 0, // 8 
-		-1.5,  1, -0.5, 1, 0, // 9
-		-1.5,   -1, -0.5, 1, 1, // 10
-		1.5,  -1, -0.5, 0, 1, // 11
+		1.5, 1, -0.5, 0, 0, 0.0f,  0.0f,  -1.0f, // 8 
+		-1.5,  1, -0.5, 1, 0, 0.0f,  0.0f,  -1.0f,// 9
+		-1.5,   -1, -0.5, 1, 1, 0.0f,  0.0f,  -1.0f, // 10
+		1.5,  -1, -0.5, 0, 1, 0.0f,  0.0f,  -1.0f, // 11
 
 		// left
-		-1.5, -1, -0.5, 1, 1, // 12
-		-1.5, -1,  0.5, 0, 1, // 13
-		-1.5,  1,  0.5, 0, 0, // 14
-		-1.5,  1, -0.5, 1, 0, // 15
+		-1.5, -1, -0.5, 1, 1, -1.0f,  0.0f,  0.0f, // 12
+		-1.5, -1,  0.5, 0, 1, -1.0f,  0.0f,  0.0f, // 13
+		-1.5,  1,  0.5, 0, 0, -1.0f,  0.0f,  0.0f,// 14
+		-1.5,  1, -0.5, 1, 0, -1.0f,  0.0f,  0.0f, // 15
 
 		// upper
-		1.5, 1,  0.5, 1, 1,   // 16
-		-1.5, 1,  0.5, 0, 1,  // 17
-		-1.5, 1, -0.5, 0, 0,  // 18
-		1.5, 1, -0.5, 1, 0,   // 19
+		1.5, 1,  0.5, 1, 1, 0.0f,  1.0f,  0.0f,  // 16
+		-1.5, 1,  0.5, 0, 1,  0.0f,  1.0f,  0.0f, // 17
+		-1.5, 1, -0.5, 0, 0,  0.0f,  1.0f,  0.0f, // 18
+		1.5, 1, -0.5, 1, 0,   0.0f,  1.0f,  0.0f, // 19
 
 		// bottom
-		-1.5, -1, -0.5, 1, 1, // 20
-		1.5, -1, -0.5, 0, 1,  // 21
-		1.5, -1,  0.5, 1, 1,  // 22
-		-1.5, -1,  0.5, 0, 1, // 23
+		-1.5, -1, -0.5, 1, 1, 0.0f,  -1.0f,  0.0f, // 20
+		1.5, -1, -0.5, 0, 1,   0.0f,  -1.0f,  0.0f,// 21
+		1.5, -1,  0.5, 1, 1,  0.0f,  -1.0f,  0.0f,// 22
+		-1.5, -1,  0.5, 0, 1, 0.0f,  -1.0f,  0.0f, // 23
 
 	};
 
@@ -321,11 +392,11 @@ void Demo::BuildTvSamping() {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// define position pointer layout 0
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(0 * sizeof(GLfloat)));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(0 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(0);
 
 	// define texcoord pointer layout 1
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
 
 	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
@@ -353,45 +424,54 @@ void Demo::BuildTvBelakang() {
 	SOIL_free_image_data(image);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+	glGenTextures(1, &sTexture4);
+	glBindTexture(GL_TEXTURE_2D, sTexture4);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	image = SOIL_load_image("TvBelakang_Specular.png", &width, &height, 0, SOIL_LOAD_RGBA);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+	SOIL_free_image_data(image);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
 	float vertices[] = {
 		// format position, tex coords
 		// front
-		-1.5, -1, 0.5, 0, 0,  // 0
-		1.5, -1, 0.5, 1, 0,   // 1
-		1.5,  1, 0.5, 1, 1,   // 2
-		-1.5,  1, 0.5, 0, 1,  // 3
+		-1.5, -1, 0.5, 0, 0,0.0f,  0.0f,  1.0f, // 0
+		1.5, -1, 0.5, 1, 0,0.0f,  0.0f,  1.0f,   // 1
+		1.5,  1, 0.5, 1, 1, 0.0f,  0.0f,  1.0f,  // 2
+		-1.5,  1, 0.5, 0, 1, 0.0f,  0.0f,  1.0f, // 3
 
 		// right
-		1.5,  1,  0.5, 0, 0,  // 4
-		1.5,  1, -0.5, 1, 0,  // 5
-		1.5, -1, -0.5, 1, 1,  // 6
-		1.5, -1,  0.5, 0, 1,  // 7
+		1.5,  1,  0.5, 0, 0, 1.0f,  0.0f,  0.0f, // 4
+		1.5,  1, -0.5, 1, 0, 1.0f,  0.0f,  0.0f, // 5
+		1.5, -1, -0.5, 1, 1, 1.0f,  0.0f,  0.0f, // 6
+		1.5, -1,  0.5, 0, 1, 1.0f,  0.0f,  0.0f, // 7
 
 		// back
-		1.5, 1, -0.5, 0, 0, // 8 
-		-1.5,  1, -0.5, 1, 0, // 9
-		-1.5,   -1, -0.5, 1, 1, // 10
-		1.5,  -1, -0.5, 0, 1, // 11
+		1.5, 1, -0.5, 0, 0, 0.0f,  0.0f,  -1.0f, // 8 
+		-1.5,  1, -0.5, 1, 0, 0.0f,  0.0f,  -1.0f,// 9
+		-1.5,   -1, -0.5, 1, 1, 0.0f,  0.0f,  -1.0f, // 10
+		1.5,  -1, -0.5, 0, 1, 0.0f,  0.0f,  -1.0f, // 11
 
 		// left
-		-1.5, -1, -0.5, 1, 1, // 12
-		-1.5, -1,  0.5, 0, 1, // 13
-		-1.5,  1,  0.5, 0, 0, // 14
-		-1.5,  1, -0.5, 1, 0, // 15
+		-1.5, -1, -0.5, 1, 1, -1.0f,  0.0f,  0.0f, // 12
+		-1.5, -1,  0.5, 0, 1, -1.0f,  0.0f,  0.0f, // 13
+		-1.5,  1,  0.5, 0, 0, -1.0f,  0.0f,  0.0f,// 14
+		-1.5,  1, -0.5, 1, 0, -1.0f,  0.0f,  0.0f, // 15
 
 		// upper
-		1.5, 1,  0.5, 1, 1,   // 16
-		-1.5, 1,  0.5, 0, 1,  // 17
-		-1.5, 1, -0.5, 0, 0,  // 18
-		1.5, 1, -0.5, 1, 0,   // 19
+		1.5, 1,  0.5, 1, 1, 0.0f,  1.0f,  0.0f,  // 16
+		-1.5, 1,  0.5, 0, 1,  0.0f,  1.0f,  0.0f, // 17
+		-1.5, 1, -0.5, 0, 0,  0.0f,  1.0f,  0.0f, // 18
+		1.5, 1, -0.5, 1, 0,   0.0f,  1.0f,  0.0f, // 19
 
 		// bottom
-		-1.5, -1, -0.5, 1, 1, // 20
-		1.5, -1, -0.5, 0, 1,  // 21
-		1.5, -1,  0.5, 1, 1,  // 22
-		-1.5, -1,  0.5, 0, 1, // 23
+		-1.5, -1, -0.5, 1, 1, 0.0f,  -1.0f,  0.0f, // 20
+		1.5, -1, -0.5, 0, 1,   0.0f,  -1.0f,  0.0f,// 21
+		1.5, -1,  0.5, 1, 1,  0.0f,  -1.0f,  0.0f,// 22
+		-1.5, -1,  0.5, 0, 1, 0.0f,  -1.0f,  0.0f, // 23
 
 	};
 
@@ -418,11 +498,11 @@ void Demo::BuildTvBelakang() {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// define position pointer layout 0
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(0 * sizeof(GLfloat)));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(0 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(0);
 
 	// define texcoord pointer layout 1
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
 
 	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
@@ -439,11 +519,18 @@ void Demo::BuildTvBelakang() {
 
 void Demo::DrawTvDepan()
 {
-	glUseProgram(shaderProgram);
+	UseShader(this->shaderProgram);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture4);
-	glUniform1i(glGetUniformLocation(this->shaderProgram, "ourTexture"), 0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glUniform1i(glGetUniformLocation(this->shaderProgram, "material.diffuse"), 0);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, sTexture);
+	glUniform1i(glGetUniformLocation(this->shaderProgram, "material.specular"), 1);
+
+	GLint shininessMatLoc = glGetUniformLocation(this->shaderProgram, "material.shininess");
+	glUniform1f(shininessMatLoc, 0.4f);
 
 	glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 
@@ -466,11 +553,18 @@ void Demo::DrawTvDepan()
 }
 void Demo::DrawTvBelakang()
 {
-	glUseProgram(shaderProgram);
+	UseShader(this->shaderProgram);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glUniform1i(glGetUniformLocation(this->shaderProgram, "ourTexture"), 0);
+	glBindTexture(GL_TEXTURE_2D, texture4);
+	glUniform1i(glGetUniformLocation(this->shaderProgram, "material.diffuse"), 0);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, sTexture4);
+	glUniform1i(glGetUniformLocation(this->shaderProgram, "material.specular"), 1);
+
+	GLint shininessMatLoc = glGetUniformLocation(this->shaderProgram, "material.shininess");
+	glUniform1f(shininessMatLoc, 0.4f);
 
 	glBindVertexArray(VAO4);// seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 
@@ -494,11 +588,18 @@ void Demo::DrawTvBelakang()
 
 void Demo::DrawTvSamping()
 {
-	glUseProgram(shaderProgram);
+	UseShader(this->shaderProgram);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture3);
-	glUniform1i(glGetUniformLocation(this->shaderProgram, "ourTexture"), 0);
+	glUniform1i(glGetUniformLocation(this->shaderProgram, "material.diffuse"), 0);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, sTexture3);
+	glUniform1i(glGetUniformLocation(this->shaderProgram, "material.specular"), 1);
+
+	GLint shininessMatLoc = glGetUniformLocation(this->shaderProgram, "material.shininess");
+	glUniform1f(shininessMatLoc, 0.4f);
 
 	glBindVertexArray(VAO3); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 
@@ -522,6 +623,7 @@ void Demo::DrawTvSamping()
 
 void Demo::BuildColoredPlane()
 {
+
 	// Load and create a texture 
 	glGenTextures(1, &texture2);
 	glBindTexture(GL_TEXTURE_2D, texture2);
@@ -536,6 +638,16 @@ void Demo::BuildColoredPlane()
 	glGenerateMipmap(GL_TEXTURE_2D);
 	SOIL_free_image_data(image);
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glGenTextures(1, &sTexture2);
+	glBindTexture(GL_TEXTURE_2D, sTexture2);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	image = SOIL_load_image("Marble_Specularmap.png", &width, &height, 0, SOIL_LOAD_RGBA);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+	SOIL_free_image_data(image);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 
 	// Build geometry
 	GLfloat vertices[] = {
@@ -574,11 +686,18 @@ void Demo::BuildColoredPlane()
 }
 void Demo::DrawColoredPlane()
 {
-	glUseProgram(shaderProgram);
+	UseShader(this->shaderProgram);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+	glUniform1i(glGetUniformLocation(this->shaderProgram, "material.diffuse"), 0);
 
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, texture2);
-	glUniform1i(glGetUniformLocation(this->shaderProgram, "ourTexture"), 1);
+	glBindTexture(GL_TEXTURE_2D, sTexture2);
+	glUniform1i(glGetUniformLocation(this->shaderProgram, "material.specular"), 1);
+
+	GLint shininessMatLoc = glGetUniformLocation(this->shaderProgram, "material.shininess");
+	glUniform1f(shininessMatLoc, 0.4f);
 
 	glBindVertexArray(VAO2); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 
